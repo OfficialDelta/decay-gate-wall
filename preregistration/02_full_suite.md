@@ -31,7 +31,7 @@ Ordering retain6 >= retain4 >= baseline (bias 4 leaves only ~1% after 246 tokens
 something more (e.g. the paper's curriculum).*
 
 ## Notes
-- Pilot (cloud sandbox, before this suite): L=64, batch 128, 2000 steps; first retain seed locked in
+- Pilot (separate machine, before this suite): L=64, batch 128, 2000 steps; first retain seed locked in
   by step ~500 while baseline sat at chance through step 1200. One seed per arm, not evidence on its own.
 - CPU on purpose: the paper's reference cell is a step-by-step loop over tiny matrices, where GPU
   kernel-launch overhead per timestep usually cancels any speedup (not measured here). Throughput comes from running one seed per core in parallel.

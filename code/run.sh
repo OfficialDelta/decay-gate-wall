@@ -59,7 +59,7 @@ chmod +x job.sh
 # 5) parallelism = performance cores (each run is single-threaded)
 JOBS="${JOBS:-$(sysctl -n hw.perflevel0.physicalcpu 2>/dev/null || sysctl -n hw.physicalcpu)}"
 TOTAL=$(wc -l < jobs.txt | tr -d ' ')
-echo "Running $TOTAL runs, $JOBS at a time. Leave this window open; the Mac is kept awake while it runs."
+echo "Running $TOTAL runs, $JOBS at a time. Leave this window open; the computer is kept awake while it runs."
 echo "Progress: ls $DIR/results | wc -l    Summary any time: .venv/bin/python summarize.py"
 caffeinate -i xargs -P "$JOBS" -L 1 ./job.sh < jobs.txt
 echo

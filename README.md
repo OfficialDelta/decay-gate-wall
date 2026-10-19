@@ -28,10 +28,10 @@ genuine in-context retrieval. No run found a shortcut.
 
 | Experiment | Setup | Paper default init | Our change | Fisher p |
 |---|---|---|---|---|
-| Main replication (Mac suite A) | L=64, batch 256, 3000 steps, 10 seeds | 1/10 | bias +4: **10/10** | 1.2e-4 |
-| Long haystack (Mac suite C) | L=256, batch 128, 3000 steps, 5 seeds | 0/5 | bias +4: **5/5**; bias +6: **5/5** | 0.008 each |
-| Collision decoys (Mac suite B) | L=64, decoys reuse table keys | 1/5 | bias +4: **5/5** | 0.048 |
-| Cloud pilot | L=64, batch 128, 2000 steps | 0/6 | bias +4: **6/6** | 0.002 |
+| Main replication (suite A) | L=64, batch 256, 3000 steps, 10 seeds | 1/10 | bias +4: **10/10** | 1.2e-4 |
+| Long haystack (suite C) | L=256, batch 128, 3000 steps, 5 seeds | 0/5 | bias +4: **5/5**; bias +6: **5/5** | 0.008 each |
+| Collision decoys (suite B) | L=64, decoys reuse table keys | 1/5 | bias +4: **5/5** | 0.048 |
+| Pilot | L=64, batch 128, 2000 steps | 0/6 | bias +4: **6/6** | 0.002 |
 | Standard library init | as pilot; r = exp(−A·dt), A~U(0,16), dt~logU[1e-3,1e-1] | 0/6 (pilot) | **5/5** | 0.002 |
 | Decay-free control | as pilot; delta rule + conv, no decay gate | 0/6 (pilot) | **3/3** | 0.012 |
 | Causal cells, collision decoys | as pilot, forward-only | 0/3 | bias +4: **4/4** | 0.029 |
@@ -53,9 +53,9 @@ Predictions were written before each batch of runs (`preregistration/`).
 | Prediction | Outcome |
 |---|---|
 | Pilot: +4 ≥ 4/6, baseline mostly fails | **Pass** (6/6 vs 0/6) |
-| Mac A: +4 ≥ 7/10, baseline ≤ 3/10, p < .05 | **Pass** (10/10 vs 1/10) |
-| Mac B: +4 will **not** fix collision decoys (≤ baseline + 1) | **Fail**. +4 went 5/5 |
-| Mac C: baseline 0/5, bias +6 ≥ 3/5, ordering +6 ≥ +4 ≥ baseline | Pass, but bias +4 also went 5/5, so the predicted +6 vs +4 gap did not appear |
+| Suite A: +4 ≥ 7/10, baseline ≤ 3/10, p < .05 | **Pass** (10/10 vs 1/10) |
+| Suite B: +4 will **not** fix collision decoys (≤ baseline + 1) | **Fail**. +4 went 5/5 |
+| Suite C: baseline 0/5, bias +6 ≥ 3/5, ordering +6 ≥ +4 ≥ baseline | Pass, but bias +4 also went 5/5, so the predicted +6 vs +4 gap did not appear |
 | Decay-free cell locks in ≥ 2/3 | **Pass** (3/3) |
 | Standard library init ≥ 4/5 | **Pass** (5/5) |
 | Causal cells + +4 will **not** fix collision decoys (≤ 1/4) | **Fail**. Went 4/4 (default init: 0/3) |
@@ -113,7 +113,7 @@ Requires Python ≥ 3.10 and PyTorch (CPU is fine; each run is single-threaded).
 
 ```bash
 git clone https://github.com/JIBSIL/dualgoose.git && git -C dualgoose checkout 8ca624a465e22a26583716399ef9a216da1f5627
-# main suite (45 runs; resumable; macOS script, uses caffeinate + sysctl)
+# main suite (45 runs; resumable; written for macOS: uses caffeinate + sysctl)
 bash code/run.sh
 # single runs
 python code/run_arm.py      --repo dualgoose --arm retain --retain-bias 4 --seed 0 --out r.json
@@ -124,12 +124,12 @@ python code/run_followups.py --repo dualgoose --init retain --direction forward 
 
 Each JSON in `results/` records the arm, seed, final accuracy, rebinding-control accuracy, initial
 (and, for follow-ups, final) decay-gate retention, and the training-loss log.
-`results/mac_suite/REPORT.txt` summarizes the 45-run suite; its per-run JSONs live on the machine that ran it.
+`results/full_suite/REPORT.txt` summarizes the 45-run suite; its per-run JSONs are in the same folder.
 
 ## Files
 
 ```
 code/               experiment scripts (import the paper's cells unchanged; only the gate bias differs)
 preregistration/    predictions, written before each batch of runs
-results/            per-run JSONs (cloud) and the Mac suite report
+results/            per-run JSONs: pilot/, full_suite/, decay_free/, followups/
 ```

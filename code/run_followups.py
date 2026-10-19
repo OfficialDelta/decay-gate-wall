@@ -7,7 +7,7 @@
                  A ~ U(0,16), dt ~ logU[1e-3, 1e-1] (median ~0.92), expressed in the paper's
                  own sigmoid parameterization (bias = logit(r)).
 --direction    : bidirectional (paper's denoiser) or forward (causal only).
-Everything else matches the earlier cloud runs (L=64, 4 pairs, dense 4, 2 layers, d=32, AdamW 1e-3
+Everything else matches the pilot runs (L=64, 4 pairs, dense 4, 2 layers, d=32, AdamW 1e-3
 cosine, batch 128, 2000 steps).
 """
 import argparse, json, math, sys, time

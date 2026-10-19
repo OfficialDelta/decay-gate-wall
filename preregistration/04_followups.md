@@ -1,5 +1,5 @@
 # Round 3 predictions (written 2026-10-19 ~14:50 ET, before running)
-Setup: same as cloud round 1 (L=64, 4 pairs, dense 4, armed_gdn 2 layers d=32, batch 128, 2000 steps, no curriculum).
+Setup: same as the pilot (L=64, 4 pairs, dense 4, armed_gdn 2 layers d=32, batch 128, 2000 steps, no curriculum).
 Lock-in = acc >= 0.9. Rebind must collapse (~0.02) for locked runs.
 Reference: round 1 bidirectional default 0/6, retain(+4) 6/6; decay-free 3/3.
 

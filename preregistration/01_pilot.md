@@ -1,4 +1,4 @@
-# Cloud pilot: criteria stated before running (2026-10-18, ~19:13 ET)
+# Pilot: criteria stated before running (2026-10-18, ~19:13 ET)
 
 Stated in conversation before the first run started (not committed to a file at the time):
 

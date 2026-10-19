@@ -38,7 +38,7 @@ All 27 locked-in runs are genuine: rebind collapsed to the floor in every case; 
 Other observations
 Lock-in timing (training loss leaving ~8): L64 retain4 by step 300-400; the single L64 baseline lock-in (seed 3) at ~1400. L64 collision retain4 by 300-500. L256 retain6 by 400-700; L256 retain4 later, ~600-2000.
 Seed 3's baseline locked in on its own in both A and B; no other baseline ever did.
-Run conditions: from ~08:30 to ~10:45 and ~11:50 to ~13:15 on 2026-10-19 the Mac was swamped by other processes (load average 100-190), slowing the last 5 L256 runs up to ~19x. This affected wall time only; the runs are deterministic CPU jobs and finished normally.
+Run conditions: from ~08:30 to ~10:45 and ~11:50 to ~13:15 on 2026-10-19 the machine was swamped by other processes (load average 100-190), slowing the last 5 L256 runs up to ~19x. This affected wall time only; the runs are deterministic CPU jobs and finished normally.
 What it means
 The core hypothesis holds up: changing nothing but the decay-gate init removes the retrieval wall at L=64 (10/10 vs 1/10) and at L=256 (10/10 retain vs 0/5 baseline) with no curriculum, beating the paper's shaped-ramp curriculum (4/5) at L=256, and every lock-in is a genuine retriever. But B failed as pre-registered: the same init also solves collision decoys, which the "decoys overwrite rather than fade" story said it should not, so the mechanism account is incomplete. A likely but untested reason is that the cell is bidirectional and its backward stream naturally keeps the first (correct) binding once retention is the default.
 
