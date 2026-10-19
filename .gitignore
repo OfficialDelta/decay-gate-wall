@@ -1,0 +1,4 @@
+.venv/
+dualgoose/
+logs/
+__pycache__/

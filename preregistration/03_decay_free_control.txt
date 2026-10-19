@@ -1,0 +1,4 @@
+Written 2026-10-18 ~22:40 ET, before running.
+Control: decay-free delta-rule cell (deltanet + short conv, same as armed_gdn minus the decay gate), L=64, batch 128, 2000 steps, 3 seeds.
+Prediction if the wall is a decay-init artifact: decay-free cell locks in (acc >= 0.9) on >= 2/3 seeds.
+If decay-free sits at chance on >= 2/3 seeds, the wall is NOT mainly decay init: the delta rule's own erase/overwrite step (distractor writes) is implicated, and our explanation is at best partial.

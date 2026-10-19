@@ -1,0 +1,45 @@
+Haystack decay-init test: report
+All 45 runs finished (2026-10-18 19:49 to 2026-10-19 14:35), 0 failures, 0 code changes. Setup exactly as pre-registered (PREDICTIONS.md): dualgoose @ 8ca624a, armed_gdn, 2 layers, 2 heads, d=32, 4 pairs, dense 4, AdamW 1e-3 cosine, 3000 steps, no curriculum. CPU, one single-threaded run per performance core (10 in parallel) on an M3 Max, native arm64 Python 3.13, torch 2.14.1. Only difference between arms: initial bias of the decay-gate slots (verified against the repo: proj.bias[3*d_key+1:] is exactly the decay slice, after q, k, v, beta). Lock-in = final accuracy >= 0.9; chance = 1/54 = 0.019. Fisher = two-sided exact test vs baseline.
+
+Verdicts
+block	prediction	result	verdict
+A. L=64	retain4 >= 7/10, baseline <= 3/10, p < 0.05, locked rebind < 0.1	10/10 vs 1/10, p = 0.000119, rebind 0.017-0.021	PASS
+B. L=64 collision	retain4 lock-in <= baseline + 1 (i.e. <= 2)	5/5 vs 1/5, p = 0.048	FAIL
+C. L=256	baseline 0/5; retain6 >= 3/5; retain6 >= retain4 >= baseline	0/5; 5/5; 5 = 5 > 0 (p = 0.0079 each)	PASS (see caveat)
+A. L=64, 10 seeds per arm
+arm	lock-in	mean acc	per-seed acc (s0..s9)
+baseline	1/10	0.117	0.02 0.02 0.02 1.00 0.02 0.02 0.02 0.02 0.02 0.02
+retain (bias 4)	10/10	1.000	all 1.00
+Fisher p = 0.000119.
+
+B. L=64 collision decoys, 5 seeds per arm
+arm	lock-in	mean acc	per-seed acc (s0..s4)
+baseline	1/5	0.215	0.02 0.02 0.02 1.00 0.02
+retain (bias 4)	5/5	1.000	all 1.00
+Fisher p = 0.0476.
+
+C. L=256, 5 seeds per arm
+arm	lock-in	mean acc	per-seed acc (s0..s4)
+baseline	0/5	0.019	0.02 0.02 0.02 0.02 0.02
+retain (bias 4)	5/5	1.000	all 1.00
+retain (bias 6)	5/5	1.000	all 1.00
+Fisher p = 0.00794 for each retain arm vs baseline. (Paper, for reference: uniform curriculum 0/9, shaped ramp 4/5.)
+
+Rebind accuracy of every locked-in run (genuine retriever -> coincidence floor ~1/54 = 0.0185)
+run	acc	rebind
+L64 baseline s3	1.000	0.0179
+L64 retain4 s0..s9	1.000	0.0179, 0.0195, 0.0194, 0.0179, 0.0193, 0.0172, 0.0186, 0.0208, 0.0184, 0.0168
+L64coll baseline s3	1.000	0.0186
+L64coll retain4 s0..s4	1.000	0.0206, 0.0209, 0.0203, 0.0186, 0.0195
+L256 retain4 s0..s4	1.000	0.0187, 0.0166, 0.0190, 0.0179, 0.0181
+L256 retain6 s0..s4	1.000	0.0187, 0.0166, 0.0190, 0.0179, 0.0181
+All 27 locked-in runs are genuine: rebind collapsed to the floor in every case; no shortcut found. Same-seed retain4/retain6 runs give identical rebind because eval batches are seeded by the run seed and both models retrieve perfectly; expected, not a bug. Non-locked runs sit at chance with rebind equal to accuracy (they ignore the table).
+
+Other observations
+Lock-in timing (training loss leaving ~8): L64 retain4 by step 300-400; the single L64 baseline lock-in (seed 3) at ~1400. L64 collision retain4 by 300-500. L256 retain6 by 400-700; L256 retain4 later, ~600-2000.
+Seed 3's baseline locked in on its own in both A and B; no other baseline ever did.
+Run conditions: from ~08:30 to ~10:45 and ~11:50 to ~13:15 on 2026-10-19 the Mac was swamped by other processes (load average 100-190), slowing the last 5 L256 runs up to ~19x. This affected wall time only; the runs are deterministic CPU jobs and finished normally.
+What it means
+The core hypothesis holds up: changing nothing but the decay-gate init removes the retrieval wall at L=64 (10/10 vs 1/10) and at L=256 (10/10 retain vs 0/5 baseline) with no curriculum, beating the paper's shaped-ramp curriculum (4/5) at L=256, and every lock-in is a genuine retriever. But B failed as pre-registered: the same init also solves collision decoys, which the "decoys overwrite rather than fade" story said it should not, so the mechanism account is incomplete. A likely but untested reason is that the cell is bidirectional and its backward stream naturally keeps the first (correct) binding once retention is the default.
+
+Caveat on C: it passes as written, but the bias-6 vs bias-4 contrast it was designed around did not show up. Bias 4 also went 5/5 at L=256, contrary to the pre-registered estimate that it keeps only ~1% of the table after 246 tokens. So the simple per-token survival arithmetic underestimates what bias 4 can learn, and these runs do not show that bias 6 is needed at this length.
